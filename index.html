@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flux Complet - 6 Étapes + Modale “Sur commande”</title>
+
+  <!-- Leaflet CSS (étape 5 / carte) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-o8p6k+9/V8yR8voQubH4nYcyNEr38epE/A4fWrV2BQI="
+    crossorigin=""
+  />
+
+  <style>
+    /* =================== RESET / GLOBAL =================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      min-height: 800px;
+    }
+
+    /* =================== BARRE D'ÉTAPES =================== */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      list-style: none;
+      margin-bottom: 2rem;
+      padding: 0;
+    }
+    .step-indicator li {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      color: #aaa;
+      font-weight: bold;
+    }
+    .step-indicator li::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 2px;
+      background: #ddd;
+      z-index: -1;
+    }
+    .step-indicator li:last-child::after {
+      display: none;
+    }
+    .step-number {
+      display: inline-block;
+      background: #fff;
+      border: 2px solid #f26722;
+      color: #f26722;
+      width: 24px;
+      height: 24px;
+      line-height: 22px;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 0.8rem;
+      margin-right: 0.3rem;
+    }
+    .active {
+      color: #333 !important;
+    }
+    .active .step-number {
+      background: #f26722;
+      color: #fff;
+    }
+
+    /* =================== STEP CONTAINERS =================== */
+    .step-container {
+      display: none; 
+      min-height: 600px;
+    }
+
+    /* =================== ÉTAPE 1 : Marque =================== */
+    #step1 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .brand-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .brand-card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      transition: box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .brand-card:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .brand-card img {
+      max-height: 50px;
+      object-fit: contain;
+    }
+
+    /* =================== ÉTAPE 2 : Modèle =================== */
+    #step2 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .model-card {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      transition: box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .model-card:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .model-card img {
+      max-height: 120px;
+      margin-bottom: 0.5rem;
+    }
+
+    /* =================== ÉTAPE 3 : Pannes & Services =================== */
+    #step3 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .pannes-wrapper {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1rem;
+    }
+    .phone-preview {
+      text-align: center;
+    }
+    .phone-preview img {
+      max-width: 200px;
+    }
+    .pannes-content {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .panne-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .panne-name {
+      font-weight: bold;
+    }
+    .panne-item input[type="checkbox"] {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+    h3 {
+      margin: 0.5rem 0;
+    }
+    /* Services (accordéon) */
+    .services-section {
+      margin-top: 1rem;
+    }
+    .service-card {
+      background: #eee;
+      border-radius: 5px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+    .service-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1rem;
+      font-weight: bold;
+    }
+    .service-title {
+      color: #fff;
+    }
+    .arrow-icon i {
+      transition: transform 0.3s ease;
+    }
+    .service-card.open .arrow-icon i {
+      transform: rotate(180deg);
+    }
+    .service-card-content {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.4s ease;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      padding: 0 1rem;
+    }
+    .service-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+    .service-price {
+      margin-right: 0.5rem;
+      font-weight: bold;
+    }
+    .service-item input[type="checkbox"] {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+    /* Couleurs pour service-card */
+    .service-card[data-color="green"] .service-card-header { background: #66bb6a; }
+    .service-card[data-color="orange"] .service-card-header { background: #f26722; }
+    .service-card[data-color="purple"] .service-card-header { background: #8e44ad; }
+    .service-card[data-color="blue"]   .service-card-header { background: #3498db; }
+
+    /* Partenaires */
+    .partners-section {
+      margin-top: 1rem;
+    }
+    .partner-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .partner-discount {
+      color: #f26722;
+      font-weight: bold;
+    }
+
+    /* Résumé total + bouton */
+    .summary-section {
+      margin-top: 1.5rem;
+      border-top: 1px solid #ddd;
+      padding-top: 1rem;
+    }
+    .summary-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+    }
+    .summary-total {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2c7f2c;
+      margin-bottom: 0.5rem;
+    }
+    .summary-savings {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #444;
+    }
+    .button-rdv {
+      background: #f26722;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .button-rdv:hover {
+      background: #e15610;
+    }
+
+    /* =================== ÉTAPE 4 : Coordonnées =================== */
+    #step4 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .advisor-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .advisor-box img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .gender-buttons {
+      display: inline-flex;
+      border: 1px solid #f26722;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .gender-buttons button {
+      background: #fff;
+      color: #f26722;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+    .gender-buttons button.active {
+      background: #f26722;
+      color: #fff;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .form-group {
+      flex: 1 1 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group.half {
+      flex: 1 1 calc(50% - 1rem);
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+    input[type="text"], input[type="email"] {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.6rem;
+      font-size: 1rem;
+    }
+    .country-select {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .country-select select {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.6rem;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .optout-section {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .optout-section input[type="checkbox"] {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+    .form-actions {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .btn-primary {
+      background: #f26722;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .btn-primary:hover {
+      background: #e15610;
+    }
+    .btn-secondary {
+      color: #f26722;
+      background: transparent;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      text-decoration: underline;
+    }
+
+    /* =================== ÉTAPE 5 : Boutiques =================== */
+    #step5 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      max-width: 300px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .search-bar button {
+      background: #f26722;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .boutiques-wrapper {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 1rem;
+    }
+    .stores-list {
+      overflow-y: auto;
+      max-height: 600px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 1rem;
+    }
+    .store-item {
+      margin-bottom: 1.5rem;
+    }
+    .store-item h3 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+    .store-distance {
+      color: #f26722;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .services-list {
+      margin-left: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .service-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+    .service-name {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+    }
+    .service-status {
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+    }
+    .status-dispo {
+      background: #e2f8e1;
+      color: #2c7f2c;
+    }
+    .status-commande {
+      background: #fff6d2;
+      color: #af8b00;
+    }
+    .toggle-hours {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+    }
+    .toggle-hours:hover {
+      text-decoration: underline;
+    }
+    .hours-block {
+      margin-top: 0.5rem;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 0.5rem;
+      display: none;
+    }
+    .btn-rdv {
+      display: inline-block;
+      margin-top: 1rem;
+      background: #f26722;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #map {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+    }
+
+    /* =================== ÉTAPE 6 : Réservation =================== */
+    #step6 h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .reservation-msg {
+      text-align: center;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+    }
+    .btn-finish {
+      background: #f26722;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background 0.3s;
+      margin-top: 1rem;
+    }
+    .btn-finish:hover {
+      background: #e15610;
+    }
+
+    /* =================== MODAL “SUR COMMANDE” =================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #fff;
+      width: 400px;
+      max-width: 90%;
+      border-radius: 8px;
+      padding: 1.5rem;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      text-align: left;
+    }
+    .modal-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .modal-title i {
+      color: #f26722;
+      font-size: 1.2rem;
+    }
+    .modal-content {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+    .btn-modal {
+      border: none;
+      border-radius: 5px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .btn-cancel {
+      background: #444;
+      color: #fff;
+    }
+    .btn-continue {
+      background: #f26722;
+      color: #fff;
+    }
+
+    @media (max-width: 800px) {
+      .pannes-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .boutiques-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .stores-list {
+        max-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Leaflet + FontAwesome JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o8p6k+9/V8yR8voQubH4nYcyNEr38epE/A4fWrV2BQI="
+    crossorigin=""
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"
+    integrity="sha512-lcTRSoR/H6MA9EZaVi3+VhKxpvZOXT7TA3SI1RVpsRMv/iWIex3zCTiWn73TgF1BRSyKuWIeNSHCf64g9vufEw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+
+  <!-- Barre d’étapes -->
+  <ul class="step-indicator">
+    <li id="indicator1" class="active"><span class="step-number">1</span>Marque</li>
+    <li id="indicator2"><span class="step-number">2</span>Modèle</li>
+    <li id="indicator3"><span class="step-number">3</span>Panne</li>
+    <li id="indicator4"><span class="step-number">4</span>Coordonnées</li>
+    <li id="indicator5"><span class="step-number">5</span>Boutiques</li>
+    <li id="indicator6"><span class="step-number">6</span>Réservation</li>
+  </ul>
+
+  <div class="container">
+    <!-- ÉTAPE 1 -->
+    <div class="step-container" id="step1">
+      <h2>Quelle est votre marque&nbsp;?</h2>
+      <div class="brand-grid" id="brandGrid">
+        <!-- Exemples de marques -->
+        <div class="brand-card" data-brand="apple">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" />
+        </div>
+        <div class="brand-card" data-brand="samsung">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg" alt="Samsung" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 -->
+    <div class="step-container" id="step2">
+      <h2 id="modelTitle">Choisissez votre modèle</h2>
+      <div class="models-grid" id="modelsGrid"></div>
+    </div>
+
+    <!-- ÉTAPE 3 : Pannes/Services -->
+    <div class="step-container" id="step3">
+      <h2>Que voulez-vous réparer&nbsp;?</h2>
+      <div class="pannes-wrapper">
+        <div class="phone-preview" id="phonePreview">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/IPhone_14_Pro.png" alt="Aperçu téléphone" />
+        </div>
+        <div class="pannes-content">
+          <h3>Pannes principales :</h3>
+          <div class="panne-item">
+            <span class="panne-name">Écran cassé</span>
+            <input type="checkbox" class="price-checkbox" data-price="120.00" />
+          </div>
+          <div class="panne-item">
+            <span class="panne-name">Batterie HS</span>
+            <input type="checkbox" class="price-checkbox" data-price="60.00" />
+          </div>
+          <div class="panne-item">
+            <span class="panne-name">Caméra</span>
+            <input type="checkbox" class="price-checkbox" data-price="80.00" />
+          </div>
+
+          <h3>Nos services :</h3>
+          <div class="services-section">
+            <div class="service-card" data-color="green">
+              <div class="service-card-header">
+                <span class="service-title">Gestion de vos données</span>
+                <span class="arrow-icon"><i class="fas fa-chevron-down"></i></span>
+              </div>
+              <div class="service-card-content">
+                <div class="service-item">
+                  <div>Sauvegarde de données</div>
+                  <div>
+                    <span class="service-price">29.90€</span>
+                    <input type="checkbox" class="price-checkbox" data-price="29.90" />
+                  </div>
+                </div>
+                <div class="service-item">
+                  <div>Transfert de données</div>
+                  <div>
+                    <span class="service-price">29.90€</span>
+                    <input type="checkbox" class="price-checkbox" data-price="29.90" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="service-card" data-color="orange">
+              <div class="service-card-header">
+                <span class="service-title">Entretien</span>
+                <span class="arrow-icon"><i class="fas fa-chevron-down"></i></span>
+              </div>
+              <div class="service-card-content">
+                <div class="service-item">
+                  <div>Nettoyage complet</div>
+                  <div>
+                    <span class="service-price">24.90€</span>
+                    <input type="checkbox" class="price-checkbox" data-price="24.90" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="partners-section">
+            <h3>Partenaires :</h3>
+            <div class="partner-item">
+              <span>Bouygues Telecom&nbsp;?</span>
+              <span class="partner-discount">-30%</span>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <h3 class="summary-title">Total (TTC)</h3>
+            <div class="summary-total" id="totalPrice">0.00€</div>
+            <div class="summary-savings">
+              Économies effectuées : <span id="discountAmount">0.00€</span>
+            </div>
+            <button class="button-rdv" id="goToStep4">PRENDRE RENDEZ-VOUS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 4 : Coordonnées -->
+    <div class="step-container" id="step4">
+      <h2>Complétez le formulaire pour prendre rendez-vous</h2>
+      <div class="advisor-box">
+        <img src="https://via.placeholder.com/60" alt="Conseiller" />
+        <p>Vous pourrez ensuite choisir la boutique la plus proche de chez vous.</p>
+      </div>
+
+      <div class="gender-buttons" id="genderButtons">
+        <button type="button" data-value="Monsieur" class="active">Monsieur</button>
+        <button type="button" data-value="Madame">Madame</button>
+      </div>
+
+      <form id="coordForm">
+        <div class="form-group half">
+          <label for="prenom">Votre prénom</label>
+          <input type="text" id="prenom" name="prenom" required />
+        </div>
+        <div class="form-group half">
+          <label for="nom">Votre nom</label>
+          <input type="text" id="nom" name="nom" required />
+        </div>
+        <div class="form-group half">
+          <label for="email">Votre adresse mail</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group half">
+          <label for="codePostal">Votre code postal</label>
+          <input type="text" id="codePostal" name="codePostal" required />
+        </div>
+        <div class="form-group half">
+          <label>Pays</label>
+          <div class="country-select">
+            <span>🇫🇷</span>
+            <select id="pays" name="pays">
+              <option value="France" selected>France</option>
+              <option value="Belgique">Belgique</option>
+              <option value="Suisse">Suisse</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group half">
+          <label for="phone">Numéro de téléphone</label>
+          <input type="text" id="phone" name="phone" required />
+        </div>
+        <div class="optout-section">
+          <input type="checkbox" id="optout" name="optout" />
+          <label for="optout">Je ne souhaite pas recevoir des informations commerciales…</label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Continuer</button>
+          <button type="button" class="btn-secondary" id="btnDevis">Recevoir mon devis</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ÉTAPE 5 : Boutiques -->
+    <div class="step-container" id="step5">
+      <h2>Choisissez votre boutique&nbsp;!</h2>
+      <p>Prenez rendez-vous dans l’une de nos boutiques afin de réserver votre pièce pour votre réparation.</p>
+
+      <div class="search-bar">
+        <input type="text" id="zipcodeInput" placeholder="Entrez votre code postal" />
+        <button id="searchBtn">Rechercher</button>
+      </div>
+
+      <div class="boutiques-wrapper">
+        <div class="stores-list" id="storesList"></div>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 6 : Confirmation -->
+    <div class="step-container" id="step6">
+      <h2>Réservation confirmée&nbsp;!</h2>
+      <div class="reservation-msg">
+        <p>Merci pour votre confiance. Vous recevrez un e-mail de confirmation.</p>
+      </div>
+      <div style="text-align:center;">
+        <button class="btn-finish" id="finishBtn">Terminer</button>
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <!-- =========== MODALE “SUR COMMANDE” =========== -->
+  <div class="modal-backdrop" id="modalCommande">
+    <div class="modal-box">
+      <div class="modal-title">
+        <i class="fas fa-info-circle"></i>
+        <span>Information</span>
+      </div>
+      <div class="modal-content">
+        <p>
+          Vous avez sélectionné une boutique avec une pièce <b>sur commande</b>.<br><br>
+          Pour valider votre rendez-vous et la commande de votre pièce auprès de nos fournisseurs,
+          une empreinte bancaire de <b>20 €</b> est nécessaire.
+          Cette empreinte ne sera débitée qu’en cas de non présentation à votre rendez-vous.<br><br>
+          Les pièces sur commande sont disponibles en magasin à partir de <b>6 jours ouvrés</b>.<br><br>
+          À la prochaine étape, vous pourrez <b>sélectionner l’heure</b> de votre rendez-vous.
+        </p>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-modal btn-cancel" id="cancelModalBtn">ANNULER</button>
+        <button class="btn-modal btn-continue" id="continueModalBtn">CONTINUER</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************************************
+     * Variables + Sélecteurs
+     ************************************/
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const step3 = document.getElementById("step3");
+    const step4 = document.getElementById("step4");
+    const step5 = document.getElementById("step5");
+    const step6 = document.getElementById("step6");
+
+    const indicator1 = document.getElementById("indicator1");
+    const indicator2 = document.getElementById("indicator2");
+    const indicator3 = document.getElementById("indicator3");
+    const indicator4 = document.getElementById("indicator4");
+    const indicator5 = document.getElementById("indicator5");
+    const indicator6 = document.getElementById("indicator6");
+
+    // step 1
+    const brandGrid = document.getElementById("brandGrid");
+
+    // step 2
+    const modelTitle = document.getElementById("modelTitle");
+    const modelsGrid = document.getElementById("modelsGrid");
+
+    // step 3
+    const phonePreview = document.getElementById("phonePreview");
+    const priceCheckboxes = document.getElementsByClassName("price-checkbox");
+    const totalPriceEl = document.getElementById("totalPrice");
+    const discountAmountEl = document.getElementById("discountAmount");
+    const goToStep4Btn = document.getElementById("goToStep4");
+
+    // step 4
+    const genderButtons = document.getElementById("genderButtons");
+    let selectedGender = "Monsieur";
+    const coordForm = document.getElementById("coordForm");
+    const btnDevis = document.getElementById("btnDevis");
+
+    // step 5
+    const storesListEl = document.getElementById("storesList");
+    const zipcodeInput = document.getElementById("zipcodeInput");
+    const searchBtn = document.getElementById("searchBtn");
+    let map;
+    let markers = [];
+
+    // step 6
+    const finishBtn = document.getElementById("finishBtn");
+
+    // Modale “Sur commande”
+    const modalCommande = document.getElementById("modalCommande");
+    const cancelModalBtn = document.getElementById("cancelModalBtn");
+    const continueModalBtn = document.getElementById("continueModalBtn");
+    function openSurCommandeModal() {
+      modalCommande.classList.add("active");
+    }
+    function closeSurCommandeModal() {
+      modalCommande.classList.remove("active");
+    }
+
+    cancelModalBtn.addEventListener("click", () => {
+      closeSurCommandeModal();
+    });
+    continueModalBtn.addEventListener("click", () => {
+      closeSurCommandeModal();
+      // On passe à l’étape 6 (ou on affiche un pop-up de sélection d’horaire)
+      showStep(6);
+    });
+
+    /************************************
+     * showStep : afficher la bonne étape
+     ************************************/
+    function showStep(stepNumber) {
+      [step1, step2, step3, step4, step5, step6].forEach(div => div.style.display = "none");
+      [indicator1, indicator2, indicator3, indicator4, indicator5, indicator6].forEach(ind => ind.classList.remove("active"));
+
+      if (stepNumber === 1) { step1.style.display = "block"; indicator1.classList.add("active"); }
+      if (stepNumber === 2) { step2.style.display = "block"; indicator2.classList.add("active"); }
+      if (stepNumber === 3) { step3.style.display = "block"; indicator3.classList.add("active"); }
+      if (stepNumber === 4) { step4.style.display = "block"; indicator4.classList.add("active"); }
+      if (stepNumber === 5) { step5.style.display = "block"; indicator5.classList.add("active"); }
+      if (stepNumber === 6) { step6.style.display = "block"; indicator6.classList.add("active"); }
+    }
+
+    // Data : Marques -> modèles
+    const modelData = {
+      apple: [
+        { name: "iPhone 14", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/IPhone_14_Pro.png" },
+        { name: "iPhone 13", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/IPhone_14_Pro.png" }
+      ],
+      samsung: [
+        { name: "Galaxy S23", img: "https://upload.wikimedia.org/wikipedia/commons/9/97/Samsung_Galaxy_S20.png" },
+        { name: "Galaxy Z Flip", img: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Samsung_Galaxy_Z_Flip.png" }
+      ]
+    };
+
+    // Data : liste de boutiques
+    const dummyStores = [
+      {
+        name: "1. Centre Commercial Meaux",
+        address: "3 avenue Roland Moreno,\n77124 Chauconin-Neufmontiers, France",
+        lat: 48.9384,
+        lng: 2.8753,
+        distance: 11.69,
+        services: [
+          { name: "Lentille Appareil Photo", status: "Sur commande" },
+          { name: "Sauvegarde de données", status: "Disponible" },
+          { name: "Transfert de données", status: "Disponible" }
+        ],
+        openHours: [
+          "Lun-Ven : 09h30 - 20h00",
+          "Sam : 09h00 - 20h30",
+          "Dim : Fermé"
+        ]
+      },
+      {
+        name: "2. Boutique Exemple à Paris",
+        address: "10 Rue de la Paix,\n75002 Paris, France",
+        lat: 48.8688,
+        lng: 2.3329,
+        distance: 0.9,
+        services: [
+          { name: "Écran cassé", status: "Disponible" },
+          { name: "Batterie HS", status: "Sur commande" },
+          { name: "Protection d'écran", status: "Disponible" }
+        ],
+        openHours: [
+          "Lun-Sam : 10h - 19h",
+          "Dim : Fermé"
+        ]
+      }
+    ];
+
+    // Init
+    window.addEventListener("DOMContentLoaded", () => {
+      showStep(1);
+      initMap();
+    });
+
+    /************************************
+     * ÉTAPE 1 : Marque
+     ************************************/
+    brandGrid.addEventListener("click", (e) => {
+      const card = e.target.closest(".brand-card");
+      if (!card) return;
+      const brand = card.getAttribute("data-brand");
+      console.log("Marque choisie :", brand);
+      loadModels(brand);
+      showStep(2);
+    });
+
+    function loadModels(brand) {
+      modelsGrid.innerHTML = "";
+      const models = modelData[brand] || [];
+      if (models.length > 0) {
+        modelTitle.textContent = `Choisissez votre modèle (${brand.toUpperCase()})`;
+      } else {
+        modelTitle.textContent = `Aucun modèle trouvé pour ${brand.toUpperCase()}`;
+      }
+      models.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "model-card";
+        div.innerHTML = `
+          <img src="${m.img}" alt="${m.name}">
+          <div>${m.name}</div>
+        `;
+        div.addEventListener("click", () => {
+          console.log("Modèle choisi :", m.name);
+          phonePreview.innerHTML = `<img src="${m.img}" alt="${m.name}" />`;
+          showStep(3);
+        });
+        modelsGrid.appendChild(div);
+      });
+    }
+
+    /************************************
+     * ÉTAPE 3 : pannes -> step 4
+     ************************************/
+    // Accordéon
+    const serviceCards = document.querySelectorAll(".service-card");
+    serviceCards.forEach(card => {
+      const header = card.querySelector(".service-card-header");
+      const content = card.querySelector(".service-card-content");
+      header.addEventListener("click", () => {
+        if (card.classList.contains("open")) {
+          card.classList.remove("open");
+          content.style.maxHeight = 0;
+        } else {
+          card.classList.add("open");
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    });
+
+    // Calcul total
+    Array.from(priceCheckboxes).forEach(cb => {
+      cb.addEventListener("change", updateTotal);
+    });
+    function updateTotal() {
+      let total = 0;
+      Array.from(priceCheckboxes).forEach(cb => {
+        if (cb.checked) {
+          const price = parseFloat(cb.getAttribute("data-price")) || 0;
+          total += price;
+        }
+      });
+      totalPriceEl.textContent = total.toFixed(2) + "€";
+      discountAmountEl.textContent = "0.00€";
+    }
+
+    goToStep4Btn.addEventListener("click", () => {
+      showStep(4);
+    });
+
+    /************************************
+     * ÉTAPE 4 : Coord
+     ************************************/
+    genderButtons.addEventListener("click", (e) => {
+      if (e.target.tagName.toLowerCase() === "button") {
+        [...genderButtons.querySelectorAll("button")].forEach(b => b.classList.remove("active"));
+        e.target.classList.add("active");
+        selectedGender = e.target.getAttribute("data-value");
+        console.log("Genre choisi:", selectedGender);
+      }
+    });
+
+    coordForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      // Récupère
+      const prenom = coordForm.prenom.value.trim();
+      const nom = coordForm.nom.value.trim();
+      const email = coordForm.email.value.trim();
+      const codePostal = coordForm.codePostal.value.trim();
+      const pays = coordForm.pays.value;
+      const phone = coordForm.phone.value.trim();
+      const optout = coordForm.optout.checked;
+
+      console.log("Coordonnées:", {selectedGender, prenom, nom, email, codePostal, pays, phone, optout});
+      // step5
+      showStep(5);
+      displayStores(dummyStores);
+    });
+
+    btnDevis.addEventListener("click", () => {
+      alert("Recevoir mon devis - à implémenter");
+    });
+
+    /************************************
+     * ÉTAPE 5 : Boutiques
+     ************************************/
+    function initMap() {
+      map = L.map("map").setView([48.85, 2.35], 9);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19
+      }).addTo(map);
+    }
+
+    function displayStores(storeList) {
+      storesListEl.innerHTML = "";
+      markers.forEach(m => m.remove());
+      markers = [];
+
+      storeList.forEach(store => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "store-item";
+
+        const h3 = document.createElement("h3");
+        h3.textContent = store.name;
+        itemDiv.appendChild(h3);
+
+        const addr = document.createElement("p");
+        addr.style.whiteSpace = "pre-line";
+        addr.textContent = store.address;
+        itemDiv.appendChild(addr);
+
+        const dist = document.createElement("div");
+        dist.className = "store-distance";
+        dist.textContent = `- à ${store.distance} km de votre position`;
+        itemDiv.appendChild(dist);
+
+        const servicesTitle = document.createElement("p");
+        servicesTitle.textContent = "Liste de mes pannes :";
+        itemDiv.appendChild(servicesTitle);
+
+        const servList = document.createElement("div");
+        servList.className = "services-list";
+        store.services.forEach(s => {
+          const line = document.createElement("div");
+          line.className = "service-line";
+
+          const leftName = document.createElement("div");
+          leftName.className = "service-name";
+          leftName.innerHTML = `&#128295; ${s.name}`;
+
+          const rightStatus = document.createElement("span");
+          rightStatus.className = "service-status";
+          if (s.status.toLowerCase().includes("dispo")) {
+            rightStatus.classList.add("status-dispo");
+          } else {
+            rightStatus.classList.add("status-commande");
+          }
+          rightStatus.textContent = s.status;
+
+          line.appendChild(leftName);
+          line.appendChild(rightStatus);
+          servList.appendChild(line);
+        });
+        itemDiv.appendChild(servList);
+
+        // Horaires
+        const hoursToggle = document.createElement("div");
+        hoursToggle.className = "toggle-hours";
+        hoursToggle.textContent = "Horaires d’ouverture : ▼";
+        const hoursBlock = document.createElement("div");
+        hoursBlock.className = "hours-block";
+        store.openHours.forEach(h => {
+          const p = document.createElement("p");
+          p.textContent = h;
+          hoursBlock.appendChild(p);
+        });
+        hoursToggle.addEventListener("click", () => {
+          if (hoursBlock.style.display === "block") {
+            hoursBlock.style.display = "none";
+            hoursToggle.textContent = "Horaires d’ouverture : ▼";
+          } else {
+            hoursBlock.style.display = "block";
+            hoursToggle.textContent = "Horaires d’ouverture : ▲";
+          }
+        });
+        itemDiv.appendChild(hoursToggle);
+        itemDiv.appendChild(hoursBlock);
+
+        // Bouton RDV
+        const rdvBtn = document.createElement("button");
+        rdvBtn.className = "btn-rdv";
+        rdvBtn.textContent = "PRENDRE RENDEZ-VOUS";
+        rdvBtn.addEventListener("click", () => {
+          // Vérifier si "Sur commande" dans la liste services => modale
+          const surCommande = store.services.some(s => s.status.toLowerCase().includes("commande"));
+          if (surCommande) {
+            // Ouvrir la modale
+            openSurCommandeModal();
+          } else {
+            // Direct => étape 6
+            showStep(6);
+          }
+        });
+        itemDiv.appendChild(rdvBtn);
+
+        storesListEl.appendChild(itemDiv);
+
+        // Marqueur sur la carte
+        const marker = L.marker([store.lat, store.lng]).addTo(map);
+        marker.bindPopup(`<strong>${store.name}</strong><br>${store.address.replace(/\n/g, "<br>")}`);
+        markers.push(marker);
+      });
+
+      // Ajuster la vue
+      if (markers.length) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.2));
+      }
+    }
+
+    searchBtn.addEventListener("click", () => {
+      const zipcode = zipcodeInput.value.trim();
+      if (!zipcode) {
+        alert("Entrez un code postal !");
+        return;
+      }
+      alert(`Recherche boutiques pour code postal : ${zipcode} (exemple)`);
+      // Filtrer dummyStores si besoin
+    });
+
+    /************************************
+     * ÉTAPE 6
+     ************************************/
+    finishBtn.addEventListener("click", () => {
+      alert("Fin du parcours. Vous pouvez rediriger l'utilisateur ou réinitialiser.");
+    });
+  </script>
+</body>
+</html>
