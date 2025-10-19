@@ -106,7 +106,7 @@
     .menu-trigger .chev{opacity:.8}
     .menu{
       position:absolute; top:calc(100% + 8px); left:0; z-index:50;
-      min-width:260px;
+      min-width:280px;
       background:var(--menu-bg);
       border:1px solid var(--menu-bd);
       border-radius:12px; box-shadow:var(--shadow);
@@ -160,13 +160,13 @@
           </div>
           <div>
             <label for="model-search">Modèle</label>
-            <input type="text" id="model-search" placeholder="ex. iPhone 16 Pro Max, iPhone XR" />
+            <input type="text" id="model-search" placeholder="ex. iPhone 16 Pro Max, Galaxy S24, Pixel 8" />
             <div class="model-list" id="model-list"></div>
             <div id="model-hint" class="muted"></div>
             <div id="model-preview" class="preview" style="display:none">
-              <img id="model-img" alt="aperçu iPhone"/>
+              <img id="model-img" alt="aperçu modèle"/>
               <div>
-                <h3 id="model-title">iPhone</h3>
+                <h3 id="model-title">Modèle</h3>
                 <div class="small muted" id="model-sub">Aperçu du modèle sélectionné</div>
               </div>
             </div>
@@ -211,17 +211,10 @@
           <!-- BATTERIE -->
           <div class="menu-trigger" id="batteryTierTrigger" style="display:none">
             <span>Gamme batterie :</span>
-            <span id="batteryTierLabel" class="badge">Premium</span>
+            <span id="batteryTierLabel" class="badge">—</span>
             <span class="chev">▾</span>
             <div class="menu" id="batteryMenu">
-              <div class="item" data-value="compatible">
-                <div>Compatible</div>
-                <div class="price" id="batteryPriceCompatible">—</div>
-              </div>
-              <div class="item" data-value="premium">
-                <div>Premium <span class="badge">historique : “Réutilisé(e)”</span></div>
-                <div class="price" id="batteryPricePremium">—</div>
-              </div>
+              <!-- items injectés dynamiquement selon la marque -->
             </div>
           </div>
         </div>
@@ -301,21 +294,17 @@
         { id:'iphone-15', name:'iPhone 15' }, { id:'iphone-15-plus', name:'iPhone 15 Plus' }, { id:'iphone-15-pro', name:'iPhone 15 Pro' }, { id:'iphone-15-pro-max', name:'iPhone 15 Pro Max' },
         { id:'iphone-16', name:'iPhone 16' }, { id:'iphone-16-plus', name:'iPhone 16 Plus' }, { id:'iphone-16-pro', name:'iPhone 16 Pro' }, { id:'iphone-16-pro-max', name:'iPhone 16 Pro Max' }
       ],
-      Samsung: [{ id:'galaxy-s24', name:'Galaxy S24' }, { id:'galaxy-s23', name:'Galaxy S23' }],
-      Xiaomi: [{ id:'xiaomi-14', name:'Xiaomi 14' }]
+      Samsung: [{ id:'galaxy-s22', name:'Galaxy S22' }, { id:'galaxy-s23', name:'Galaxy S23' }, { id:'galaxy-s24', name:'Galaxy S24' }],
+      Xiaomi: [{ id:'xiaomi-12', name:'Xiaomi 12' }, { id:'xiaomi-13', name:'Xiaomi 13' }, { id:'xiaomi-14', name:'Xiaomi 14' }],
+      Oppo: [{ id:'oppo-find-x5', name:'OPPO Find X5' }, { id:'oppo-reno8', name:'OPPO Reno8' }],
+      Honor: [{ id:'honor-50', name:'HONOR 50' }, { id:'honor-magic5', name:'HONOR Magic5' }],
+      Huawei: [{ id:'p30', name:'Huawei P30' }, { id:'p40', name:'Huawei P40' }],
+      Google: [{ id:'pixel-6', name:'Pixel 6' }, { id:'pixel-7', name:'Pixel 7' }, { id:'pixel-8', name:'Pixel 8' }]
     };
 
     const IMAGES = {
-      'iphone-5':'/assets/iphone/iphone-5.jpg','iphone-5c':'/assets/iphone/iphone-5c.jpg','iphone-5s':'/assets/iphone/iphone-5s.jpg',
-      'iphone-6':'/assets/iphone/iphone-6.jpg','iphone-6-plus':'/assets/iphone/iphone-6-plus.jpg','iphone-6s':'/assets/iphone/iphone-6s.jpg','iphone-6s-plus':'/assets/iphone/iphone-6s-plus.jpg',
-      'iphone-7':'/assets/iphone/iphone-7.jpg','iphone-7-plus':'/assets/iphone/iphone-7-plus.jpg','iphone-8':'/assets/iphone/iphone-8.jpg','iphone-8-plus':'/assets/iphone/iphone-8-plus.jpg',
-      'iphone-x':'/assets/iphone/iphone-x.jpg','iphone-xr':'/assets/iphone/iphone-xr.jpg','iphone-xs':'/assets/iphone/iphone-xs.jpg','iphone-xs-max':'/assets/iphone/iphone-xs-max.jpg',
-      'iphone-11':'/assets/iphone/iphone-11.jpg','iphone-11-pro':'/assets/iphone/iphone-11-pro.jpg','iphone-11-pro-max':'/assets/iphone/iphone-11-pro-max.jpg',
-      'iphone-12-mini':'/assets/iphone/iphone-12-mini.jpg','iphone-12':'/assets/iphone/iphone-12.jpg','iphone-12-pro':'/assets/iphone/iphone-12-pro.jpg','iphone-12-pro-max':'/assets/iphone/iphone-12-pro-max.jpg',
-      'iphone-13-mini':'/assets/iphone/iphone-13-mini.jpg','iphone-13':'/assets/iphone/iphone-13.jpg','iphone-13-pro':'/assets/iphone/iphone-13-pro.jpg','iphone-13-pro-max':'/assets/iphone/iphone-13-pro-max.jpg',
-      'iphone-14':'/assets/iphone/iphone-14.jpg','iphone-14-plus':'/assets/iphone/iphone-14-plus.jpg','iphone-14-pro':'/assets/iphone/iphone-14-pro.jpg','iphone-14-pro-max':'/assets/iphone/iphone-14-pro-max.jpg',
-      'iphone-15':'/assets/iphone/iphone-15.jpg','iphone-15-plus':'/assets/iphone/iphone-15-plus.jpg','iphone-15-pro':'/assets/iphone/iphone-15-pro.jpg','iphone-15-pro-max':'/assets/iphone/iphone-15-pro-max.jpg',
-      'iphone-16':'/assets/iphone/iphone-16.jpg','iphone-16-plus':'/assets/iphone/iphone-16-plus.jpg','iphone-16-pro':'/assets/iphone/iphone-16-pro.jpg','iphone-16-pro-max':'/assets/iphone/iphone-16-pro-max.jpg'
+      // (ajoute tes URLs réelles si tu veux l’aperçu)
+      'pixel-8':'/assets/pixel/pixel-8.jpg'
     };
 
     // ---- LISTE DES RÉPARATIONS ----
@@ -356,44 +345,43 @@
       { id:'diag',           label:'Diagnostic',         icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 12h2l2 3 2-6 2 3h2"/>' }
     ];
 
-    // PRIX de départ (hors options spécifiques)
+    // ---- PRIX DE DÉPART (arrondis) ----
     const PRICE_TABLE = {
       // affichage
-      screen:         { Apple:199, Samsung:189, Xiaomi:149 },
-      back:           { Apple:159, Samsung:149, Xiaomi:129 },
+      screen:         { Apple:199, Samsung:189, Xiaomi:149, Oppo:149, Honor:149, Huawei:149, Google:199 },
+      back:           { Apple:159, Samsung:149, Xiaomi:129, Oppo:129, Honor:129, Huawei:129, Google:149 },
 
-      // batterie / charge
-      battery:        { Apple: 79, Samsung: 69, Xiaomi: 59 }, // valeur par défaut si pas de gamme spécifique
-      charge:         { Apple: 35, Samsung: 35, Xiaomi: 29 },
+      // charge
+      charge:         { Apple: 35, Samsung: 35, Xiaomi: 29, Oppo:29, Honor:29, Huawei:29, Google:39 },
 
       // audio
-      speaker_top:    { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      speaker_bottom: { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      mic_call:       { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      mic_video:      { Apple: 35, Samsung: 35, Xiaomi: 29 },
-      vibrator:       { Apple: 20, Samsung: 19, Xiaomi: 19 },
+      speaker_top:    { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
+      speaker_bottom: { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
+      mic_call:       { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
+      mic_video:      { Apple: 35, Samsung: 35, Xiaomi: 29, Oppo:29, Honor:29, Huawei:29, Google:35 },
+      vibrator:       { Apple: 20, Samsung: 19, Xiaomi: 19, Oppo:19, Honor:19, Huawei:19, Google:19 },
 
       // caméras
-      camera_front:   { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      camera_back:    { Apple: 20, Samsung: 19, Xiaomi: 19 },
-      lens_back:      { Apple: 15, Samsung: 15, Xiaomi: 15 },
+      camera_front:   { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:35 },
+      camera_back:    { Apple: 20, Samsung: 19, Xiaomi: 19, Oppo:19, Honor:19, Huawei:19, Google:29 },
+      lens_back:      { Apple: 15, Samsung: 15, Xiaomi: 15, Oppo:15, Honor:15, Huawei:15, Google:15 },
 
       // boutons / capteurs / flash
-      power_button:   { Apple: 40, Samsung: 39, Xiaomi: 35 },
-      home_button:    { Apple: 15, Samsung: 15, Xiaomi: 15 },
-      volume_buttons: { Apple: 40, Samsung: 39, Xiaomi: 35 },
-      proximity:      { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      flash:          { Apple: 30, Samsung: 29, Xiaomi: 25 },
+      power_button:   { Apple: 40, Samsung: 39, Xiaomi: 35, Oppo:35, Honor:35, Huawei:35, Google:39 },
+      home_button:    { Apple: 15, Samsung: 15, Xiaomi: 15, Oppo:15, Honor:15, Huawei:15, Google:15 },
+      volume_buttons: { Apple: 40, Samsung: 39, Xiaomi: 35, Oppo:35, Honor:35, Huawei:35, Google:39 },
+      proximity:      { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
+      flash:          { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
 
       // logiciel / services
-      reset:          { Apple: 20, Samsung: 20, Xiaomi: 20 },
-      data_transfer:  { Apple: 20, Samsung: 20, Xiaomi: 20 },
-      software_error: { Apple: 30, Samsung: 29, Xiaomi: 25 },
-      deoxidation:    { Apple: 20, Samsung: 20, Xiaomi: 20 },
-      motherboard:    { Apple:699, Samsung:599, Xiaomi:499 },
+      reset:          { Apple: 20, Samsung: 20, Xiaomi: 20, Oppo:20, Honor:20, Huawei:20, Google:20 },
+      data_transfer:  { Apple: 20, Samsung: 20, Xiaomi: 20, Oppo:20, Honor:20, Huawei:20, Google:20 },
+      software_error: { Apple: 30, Samsung: 29, Xiaomi: 25, Oppo:25, Honor:25, Huawei:25, Google:29 },
+      deoxidation:    { Apple: 20, Samsung: 20, Xiaomi: 20, Oppo:20, Honor:20, Huawei:20, Google:20 },
+      motherboard:    { Apple:699, Samsung:599, Xiaomi:499, Oppo:499, Honor:499, Huawei:499, Google:599 },
 
       // diagnostic
-      diag:           { Apple: 10, Samsung: 10, Xiaomi: 10 }
+      diag:           { Apple: 10, Samsung: 10, Xiaomi: 10, Oppo:10, Honor:10, Huawei:10, Google:10 }
     };
 
     // Gammes écran iPhone X et +
@@ -405,11 +393,21 @@
       '16':{compatible:189,premium:239,original:379}
     };
 
-    // Gammes batterie iPhone (à partir du 5 inclus)
-    const IPHONE_BATTERY_TIERS = {
-      compatible: 59,
-      premium: 79  // Premium : pas de message "batterie non reconnue" — historique : "Réutilisé(e)"
+    // Gammes batterie par marque
+    // Apple: compatible / premium (spécial)
+    const IPHONE_BATTERY_TIERS = { compatible: 59, premium: 79 };
+
+    // Samsung / Xiaomi / Oppo / Honor / Huawei : compatible / original (service pack)
+    const ANDROID_BATTERY_TIERS = {
+      Samsung: { compatible: 49, original: 69 },
+      Xiaomi:  { compatible: 39, original: 59 },
+      Oppo:    { compatible: 39, original: 59 },
+      Honor:   { compatible: 39, original: 59 },
+      Huawei:  { compatible: 39, original: 59 }
     };
+
+    // Google Pixel : original uniquement
+    const PIXEL_BATTERY_PRICE = 79;
 
     // Société
     const COMPANY = {
@@ -426,10 +424,10 @@
     const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1429389645874987069/bGM4TW6SPAnUX7sZwoqqRMoVwIr3rO-K8WRhKvujfN-UJB_jht2APaEgJ4q5iRDEyHGW";
     const WHATSAPP_NUMBER = "33750053508"; // intl sans "+"
 
-    let state = { brand:'', model:'', issues:[], screenTier:'premium', batteryTier:'premium' };
+    let state = { brand:'', model:'', issues:[], screenTier:'premium', batteryTier:null };
     const $ = (s)=>document.querySelector(s);
 
-    // ================== Helpers iPhone ==================
+    // ================== Helpers ==================
     function iphoneSeries(model){
       if(!model) return null;
       const m=model.match(/iPhone\s*(X|XR|XS|1[1-6]|10|12|13|14|15|16)(?:\s|$)/i);
@@ -443,8 +441,47 @@
       const ser=iphoneSeries(model); if(!ser) return null;
       const t=IPHONE_SERIES_TIERS[ser]; return t?t[tier]:null;
     }
-    function isAppleBatteryEligible(){
-      return state.brand==='Apple' && !!state.model; // toutes générations iPhone
+
+    function brandHasAndroidBatteryTiers(brand){
+      return !!ANDROID_BATTERY_TIERS[brand];
+    }
+    function isPixel(brand){ return brand==='Google'; }
+    function isApple(brand){ return brand==='Apple'; }
+
+    function getBatteryPrice(brand, tier){
+      if(isApple(brand)){
+        return IPHONE_BATTERY_TIERS[tier ?? 'premium'];
+      }
+      if(brandHasAndroidBatteryTiers(brand)){
+        const tbl = ANDROID_BATTERY_TIERS[brand];
+        return tbl[tier ?? 'compatible'];
+      }
+      if(isPixel(brand)){
+        return PIXEL_BATTERY_PRICE; // unique
+      }
+      // fallback générique
+      return (PRICE_TABLE.battery?.[brand]) || 59;
+    }
+
+    function batteryMenuConfigForBrand(brand){
+      if(isApple(brand)){
+        return [
+          {value:'compatible', label:'Compatible', note:'' , price:getBatteryPrice(brand,'compatible')},
+          {value:'premium',    label:'Premium'   , note:'historique : “Réutilisé(e)”', price:getBatteryPrice(brand,'premium')}
+        ];
+      }
+      if(brandHasAndroidBatteryTiers(brand)){
+        return [
+          {value:'compatible', label:'Compatible', note:'', price:getBatteryPrice(brand,'compatible')},
+          {value:'original',   label:'Original (Service Pack)', note:'', price:getBatteryPrice(brand,'original')}
+        ];
+      }
+      if(isPixel(brand)){
+        return [
+          {value:'original', label:'Original (Service Pack)', note:'', price:getBatteryPrice(brand,'original')}
+        ];
+      }
+      return null;
     }
 
     // ================== UI ==================
@@ -481,7 +518,7 @@
 
     function renderPreview(id,label){
       const url=IMAGES[id]; const img=$('#model-img'); const box=$('#model-preview');
-      $('#model-title').textContent=label||'iPhone';
+      $('#model-title').textContent=label||'Modèle';
       $('#model-sub').textContent=url?'Aperçu du modèle sélectionné':'Aucune image définie (ajoutez votre URL dans IMAGES)';
       if(url){ img.src=url; img.alt=label; } else { img.removeAttribute('src'); }
       box.style.display='grid';
@@ -493,13 +530,15 @@
         const active=state.issues.includes(it.id);
         let startPrice=(PRICE_TABLE[it.id]||{})[state.brand]||0;
 
-        // ajuster l'affichage "dès" pour l'écran iPhone X+
+        // écran iPhone X+ : "dès" = compatible série
         if(it.id==='screen' && state.brand==='Apple' && isIphoneXPlus()){
           const p=getAppleScreenPrice(state.model,'compatible'); if(p) startPrice=p;
         }
-        // ajuster l'affichage "dès" pour batterie iPhone
-        if(it.id==='battery' && isAppleBatteryEligible()){
-          startPrice = IPHONE_BATTERY_TIERS.compatible;
+        // batterie : adapter "dès" selon la marque/tier min
+        if(it.id==='battery' && state.brand){
+          if(isApple(state.brand)) startPrice = IPHONE_BATTERY_TIERS.compatible;
+          else if(brandHasAndroidBatteryTiers(state.brand)) startPrice = ANDROID_BATTERY_TIERS[state.brand].compatible;
+          else if(isPixel(state.brand)) startPrice = PIXEL_BATTERY_PRICE;
         }
 
         const el=document.createElement('button');
@@ -518,11 +557,13 @@
     function euro(v){ return typeof v==='number' ? v.toFixed(0)+'€' : '—'; }
 
     function updateTierMenus(){
-      const showAny = (state.issues.includes('screen') && isIphoneXPlus()) || (state.issues.includes('battery') && isAppleBatteryEligible());
-      $('#tierMenus').style.display = showAny ? 'flex' : 'none';
-
-      // SCREEN
       const showScreen = state.issues.includes('screen') && isIphoneXPlus();
+      const showBattery = state.issues.includes('battery') && !!state.brand;
+
+      const any = showScreen || showBattery;
+      $('#tierMenus').style.display = any ? 'flex' : 'none';
+
+      // --- ÉCRAN
       $('#screenTierTrigger').style.display = showScreen ? 'inline-flex' : 'none';
       if(showScreen){
         const pC = getAppleScreenPrice(state.model,'compatible');
@@ -531,45 +572,74 @@
         $('#screenPriceCompatible').textContent = euro(pC);
         $('#screenPricePremium').textContent   = euro(pP);
         $('#screenPriceOriginal').textContent  = euro(pO);
-        $('#screenTierLabel').textContent = state.screenTier==='compatible' ? 'Compatible (LCD)' :
-                                            state.screenTier==='premium' ? 'Premium (OLED)' : 'Original Apple';
+        $('#screenTierLabel').textContent =
+          state.screenTier==='compatible' ? 'Compatible (LCD)' :
+          state.screenTier==='premium'    ? 'Premium (OLED)'   : 'Original Apple';
       }
 
-      // BATTERY (Apple)
-      const showBattery = state.issues.includes('battery') && isAppleBatteryEligible();
-      $('#batteryTierTrigger').style.display = showBattery ? 'inline-flex' : 'none';
+      // --- BATTERIE
+      const trig = $('#batteryTierTrigger');
+      const menu = $('#batteryMenu');
+      trig.style.display = showBattery ? 'inline-flex' : 'none';
+      menu.innerHTML = '';
+
       if(showBattery){
-        $('#batteryPriceCompatible').textContent = euro(IPHONE_BATTERY_TIERS.compatible);
-        $('#batteryPricePremium').textContent   = euro(IPHONE_BATTERY_TIERS.premium);
-        $('#batteryTierLabel').textContent = state.batteryTier==='compatible' ? 'Compatible' : 'Premium';
+        const conf = batteryMenuConfigForBrand(state.brand);
+        if(conf && conf.length>0){
+          // si Pixel (1 seule option), forcer original et masquer menu (label seul)
+          if(isPixel(state.brand)){
+            state.batteryTier = 'original';
+            trig.querySelector('#batteryTierLabel').textContent = 'Original (Service Pack)';
+            // menu vide + pas de flèche interactive
+            trig.querySelector('.chev').style.display = 'none';
+            menu.classList.remove('open');
+          } else {
+            // Si pas encore choisi, définir par défaut
+            if(!state.batteryTier) state.batteryTier = conf[0].value;
+            trig.querySelector('#batteryTierLabel').textContent =
+              state.batteryTier==='original' ? 'Original (Service Pack)' :
+              state.batteryTier==='premium'  ? 'Premium' : 'Compatible';
+
+            // Injecter les items
+            conf.forEach(opt=>{
+              const div = document.createElement('div');
+              div.className='item';
+              div.dataset.value = opt.value;
+              const note = opt.note ? ` <span class="badge">${opt.note}</span>` : '';
+              div.innerHTML = `<div>${opt.label}${note}</div><div class="price">${euro(opt.price)}</div>`;
+              div.addEventListener('click', ()=>{
+                state.batteryTier = opt.value;
+                trig.querySelector('#batteryTierLabel').textContent =
+                  opt.value==='original' ? 'Original (Service Pack)' :
+                  opt.value==='premium'  ? 'Premium' : 'Compatible';
+                menu.classList.remove('open');
+                if(document.querySelector('#step3').style.display!=='none'){ renderEstimate(); }
+              });
+              menu.appendChild(div);
+            });
+            trig.querySelector('.chev').style.display = '';
+          }
+        } else {
+          // Aucune config : masquer le trigger
+          trig.style.display = 'none';
+        }
       }
     }
 
-    // ouvrir/fermer au clic mobile
+    // ouvrir/fermer au clic mobile pour menus
     function bindMenuToggle(triggerId, menuId){
       const trig = document.getElementById(triggerId);
       const menu = document.getElementById(menuId);
       if(!trig || !menu) return;
       trig.addEventListener('click', (e)=>{
-        // éviter d’ouvrir si on clique un item (il gère sa propre action)
         if(e.target.classList.contains('item') || e.target.closest('.item')) return;
+        // désactiver ouverture si Pixel (pas de choix)
+        if(triggerId==='batteryTierTrigger' && isPixel(state.brand)) return;
         menu.classList.toggle('open');
       });
       document.addEventListener('click', (e)=>{
         if(!trig.contains(e.target)) menu.classList.remove('open');
       });
-    }
-
-    function applyScreenTier(val){
-      state.screenTier = val;
-      updateTierMenus();
-      // si déjà sur étape 3, rafraîchir l’estimation
-      if(document.querySelector('#step3').style.display!=='none'){ renderEstimate(); }
-    }
-    function applyBatteryTier(val){
-      state.batteryTier = val;
-      updateTierMenus();
-      if(document.querySelector('#step3').style.display!=='none'){ renderEstimate(); }
     }
 
     // ===== Estimation =====
@@ -587,13 +657,19 @@
         }
       }
 
-      // BATTERIE iPhone (gammes)
-      if(issueId==='battery' && isAppleBatteryEligible()){
-        price = IPHONE_BATTERY_TIERS[state.batteryTier] ?? price;
-        if(state.batteryTier==='compatible'){
-          label += ' — Compatible';
-        }else{
-          label += ' — Premium (historique : "Réutilisé(e)")';
+      // BATTERIE (par marque)
+      if(issueId==='battery' && state.brand){
+        if(isApple(state.brand)){
+          const t = state.batteryTier || 'premium';
+          price = getBatteryPrice(state.brand, t);
+          label += t==='premium' ? ' — Premium (historique : "Réutilisé(e)")' : ' — Compatible';
+        } else if(brandHasAndroidBatteryTiers(state.brand)){
+          const t = state.batteryTier || 'compatible';
+          price = getBatteryPrice(state.brand, t);
+          label += t==='original' ? ' — Original (Service Pack)' : ' — Compatible';
+        } else if(isPixel(state.brand)){
+          price = getBatteryPrice(state.brand, 'original');
+          label += ' — Original (Service Pack)';
         }
       }
 
@@ -641,9 +717,16 @@
       const screenTierText = state.issues.includes('screen') && isIphoneXPlus()
         ? `\nGamme écran : ${state.screenTier==='compatible'?'Compatible (LCD)':state.screenTier==='premium'?'Premium (OLED)':'Original Apple'}`
         : '';
-      const batteryTierText = state.issues.includes('battery') && isAppleBatteryEligible()
-        ? `\nGamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`
-        : '';
+      let batteryTierText = '';
+      if(state.issues.includes('battery') && state.brand){
+        if(isApple(state.brand)){
+          batteryTierText = `\nGamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`;
+        } else if(brandHasAndroidBatteryTiers(state.brand)){
+          batteryTierText = `\nGamme batterie : ${state.batteryTier==='original'?'Original (Service Pack)':'Compatible'}`;
+        } else if(isPixel(state.brand)){
+          batteryTierText = `\nGamme batterie : Original (Service Pack)`;
+        }
+      }
       return `Bonjour 👋
 Je souhaite des infos pour une réparation.
 
@@ -703,13 +786,20 @@ Merci !`;
       doc.setFont("helvetica","bold"); doc.setFontSize(13);
       doc.text("Appareil", margin, y); y += 16;
       doc.setFont("helvetica","normal"); doc.setFontSize(12);
-      const tierScreenLine = (state.issues.includes('screen') && isIphoneXPlus())
+      const screenLine = (state.issues.includes('screen') && isIphoneXPlus())
         ? ` • Gamme écran : ${state.screenTier==='compatible'?'Compatible (LCD)':state.screenTier==='premium'?'Premium (OLED)':'Original Apple'}`
         : "";
-      const tierBatteryLine = (state.issues.includes('battery') && isAppleBatteryEligible())
-        ? ` • Gamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`
-        : "";
-      doc.text(`${state.brand || '-'} ${state.model || ''}${tierScreenLine}${tierBatteryLine}`, margin, y);
+      let batteryLine = "";
+      if(state.issues.includes('battery') && state.brand){
+        if(isApple(state.brand)){
+          batteryLine = ` • Gamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`;
+        } else if(brandHasAndroidBatteryTiers(state.brand)){
+          batteryLine = ` • Gamme batterie : ${state.batteryTier==='original'?'Original (Service Pack)':'Compatible'}`;
+        } else if(isPixel(state.brand)){
+          batteryLine = ` • Gamme batterie : Original (Service Pack)`;
+        }
+      }
+      doc.text(`${state.brand || '-'} ${state.model || ''}${screenLine}${batteryLine}`, margin, y);
       y += 24;
 
       // Tableau
@@ -767,9 +857,16 @@ Merci !`;
       const screenTierText = state.issues.includes('screen') && isIphoneXPlus()
         ? `\nGamme écran : ${state.screenTier==='compatible'?'Compatible (LCD)':state.screenTier==='premium'?'Premium (OLED)':'Original Apple'}`
         : '';
-      const batteryTierText = state.issues.includes('battery') && isAppleBatteryEligible()
-        ? `\nGamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`
-        : '';
+      let batteryTierText = '';
+      if(state.issues.includes('battery') && state.brand){
+        if(isApple(state.brand)){
+          batteryTierText = `\nGamme batterie : ${state.batteryTier==='compatible'?'Compatible':'Premium (historique : "Réutilisé(e)")'}`;
+        } else if(brandHasAndroidBatteryTiers(state.brand)){
+          batteryTierText = `\nGamme batterie : ${state.batteryTier==='original'?'Original (Service Pack)':'Compatible'}`;
+        } else if(isPixel(state.brand)){
+          batteryTierText = `\nGamme batterie : Original (Service Pack)`;
+        }
+      }
       const head = meta ? `\nDevis: ${meta.quoteNo} — ${meta.dateStr} ${meta.timeStr}` : '';
       return `🧾 **Pamko – Nouveau devis**
 Appareil : ${state.brand || '-'} ${state.model || ''}${screenTierText}${batteryTierText}
@@ -782,9 +879,20 @@ Total TTC: ${total}€`;
     }
 
     // ============== Events ==============
-    $('#brand').onchange=(e)=>{ state.brand=e.target.value; state.model=''; state.issues=[]; state.screenTier='premium'; state.batteryTier='premium';
-      $('#model-search').value=''; $('#brand-model').textContent=''; $('#model-preview').style.display='none';
-      renderModels(''); renderIssues(); $('#btn1').disabled=true; $('#btn2').disabled=true; updateTierMenus();
+    $('#brand').onchange=(e)=>{ 
+      state.brand=e.target.value; 
+      state.model=''; 
+      state.issues=[]; 
+      state.screenTier='premium'; 
+      state.batteryTier = isPixel(state.brand) ? 'original' : null; // Pixel = original auto
+      $('#model-search').value=''; 
+      $('#brand-model').textContent=''; 
+      $('#model-preview').style.display='none';
+      renderModels(''); 
+      renderIssues(); 
+      $('#btn1').disabled=true; 
+      $('#btn2').disabled=true; 
+      updateTierMenus(); 
     };
 
     (()=>{ const input=$('#model-search'); if(input){ input.addEventListener('input',e=>renderModels(e.target.value)); input.addEventListener('change',e=>renderModels(e.target.value)); }})();
@@ -794,25 +902,36 @@ Total TTC: ${total}€`;
     $('#btn2').onclick=()=>{ renderEstimate(); show(3); };
     $('#editIssues').onclick=()=>show(2);
     $('#back3').onclick=()=>show(2);
-    $('#restart').onclick=()=>{ state={brand:'',model:'',issues:[],screenTier:'premium',batteryTier:'premium'};
+    $('#restart').onclick=()=>{ 
+      state={brand:'',model:'',issues:[],screenTier:'premium',batteryTier:null};
       renderBrands(); $('#model-search').value=''; renderModels(); renderIssues();
       $('#brand-model').textContent=''; $('#model-preview').style.display='none';
-      $('#btn1').disabled=true; $('#btn2').disabled=true; updateTierMenus(); show(1);
+      $('#btn1').disabled=true; $('#btn2').disabled=true; updateTierMenus(); show(1); 
     };
 
     // Menus toggles (click)
-    bindMenuToggle('screenTierTrigger','screenMenu');
-    bindMenuToggle('batteryTierTrigger','batteryMenu');
-
-    // Sélection menus
-    document.getElementById('screenMenu')?.addEventListener('click',(e)=>{
-      const it=e.target.closest('.item'); if(!it) return;
-      applyScreenTier(it.dataset.value); document.getElementById('screenMenu').classList.remove('open');
-    });
-    document.getElementById('batteryMenu')?.addEventListener('click',(e)=>{
-      const it=e.target.closest('.item'); if(!it) return;
-      applyBatteryTier(it.dataset.value); document.getElementById('batteryMenu').classList.remove('open');
-    });
+    ;(function bindMenus(){
+      // écran
+      const trig1 = document.getElementById('screenTierTrigger');
+      const menu1 = document.getElementById('screenMenu');
+      if(trig1 && menu1){
+        trig1.addEventListener('click', (e)=>{
+          if(e.target.classList.contains('item') || e.target.closest('.item')) return;
+          menu1.classList.toggle('open');
+        });
+        document.addEventListener('click', (e)=>{ if(!trig1.contains(e.target)) menu1.classList.remove('open'); });
+        // items screen
+        menu1.addEventListener('click',(e)=>{
+          const it=e.target.closest('.item'); if(!it) return;
+          state.screenTier = it.dataset.value;
+          updateTierMenus();
+          menu1.classList.remove('open');
+          if(document.querySelector('#step3').style.display!=='none'){ renderEstimate(); }
+        });
+      }
+      // batterie
+      bindMenuToggle('batteryTierTrigger','batteryMenu');
+    })();
 
     // RDV
     document.getElementById('cta-book')?.addEventListener('click', ()=>{ window.location.href='/prendre-rdv'; });
